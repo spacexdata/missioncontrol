@@ -1,14 +1,15 @@
 const createElement = React.createElement;
 const env = {
     createElement: React.createElement,
+    createClass: React.createClass,
     connect: ReactRedux.connect,
     Util: Util
 }
 
 const initialState = {
     layout: {
-        cols: ['0px','calc(100% - 300px)','100%'],
-        rows: ['0px', '50%', '100%'],
+        cols: ['calc(100% - 300px)'],
+        rows: ['50%'],
         cells: {
             'hosted': [0,0,1,1],
             'technical': [1,0,2,1],
@@ -19,10 +20,10 @@ const initialState = {
 };
 
 const cellBox = (name, {cols, rows, cells}) => {
-    let left = cols[cells[name][0]];
-    let top = rows[cells[name][1]];
-    let right = cols[cells[name][2]];
-    let bottom = rows[cells[name][3]];
+    let left = [].concat('0px', cols, '100%')[cells[name][0]];
+    let top = [].concat('0px', rows, '100%')[cells[name][1]];
+    let right = [].concat('0px', cols, '100%')[cells[name][2]];
+    let bottom = [].concat('0px', rows, '100%')[cells[name][3]];
     return {
         left, top,
         width: `calc(${right} - ${left})`,
@@ -75,10 +76,30 @@ const Cell = env.connect(
     }
 );
 
+const layoutReducer = (state, action) => {
+    switch (action.type) {
+        case 'core/adjustRow':
+            return Util.spread(state, {rows: [].concat(
+                state.rows.slice(0, action.payload.index),
+                action.payload.pos,
+                state.rows.slice(action.payload.index+1)
+            )});
+        case 'core/adjustColumn':
+            return Util.spread(state, {cols: [].concat(
+                state.cols.slice(0, action.payload.index),
+                action.payload.pos,
+                state.cols.slice(action.payload.index+1)
+            )});
+    }
+}
+
 const mainReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'core/amendConfig':
             return Util.spread(state, {config: action.payload});
+        case 'core/adjustRow':
+        case 'core/adjustColumn':
+            return Util.spread(state, {layout: layoutReducer(state.layout, action)});
         default:
             return state;
     }
@@ -101,13 +122,15 @@ function initialize() {
         let specs = pluginHost.initAll(env);
         console.log(specs);
 
+        // let namespacedReducer = (pluginId, reducer) => ()
+
         let pluginsReducer = (state, action) => {
             return Util.keys(specs).reduce((state, url) => {
                 let spec = specs[url];
                 if (spec.reducer) {
                     return Util.spread(state, {
-                        [spec.id]: spec.reducer(state[spec.id], {
-                            type: action.type.replace(spec.id, ''),
+                        [spec.pluginId]: spec.reducer(state[spec.pluginId], {
+                            type: action.type.replace(spec.pluginId, ''),
                             payload: action.payload
                         })
                     });
@@ -118,27 +141,30 @@ function initialize() {
         }
 
         //create the store
-        let store = Redux.createStore((state, action) => {
-            let intermediate = mainReducer(state, action);
-            return pluginsReducer(intermediate, action);
-        }, Redux.applyMiddleware(logger));
+        let store = Redux.createStore(
+            Util.pipeReducers(mainReducer, pluginsReducer),
+            Redux.applyMiddleware(logger)
+        );
 
         store.dispatch({
             type: 'core/amendConfig',
             payload: config
         });
 
+        let layout = store.getState().layout;
         //create views
-        let views = config.map(userConfig => {
+        let views = config.map((userConfig, index) => {
             let pluginSpec = specs[userConfig.url];
             console.log(userConfig, pluginSpec);
-            return createElement(Cell, {userConfig, pluginSpec});
+            return createElement(Cell, {layout, userConfig, pluginSpec, key: index});
         });
 
         //init main view
-        ReactDOM.render(createElement(ReactRedux.Provider, {
-            store
-        }, createElement(MainView, {}, views)), document.getElementById('view'));
+        ReactDOM.render(createElement(
+            ReactRedux.Provider,
+            { store },
+            createElement(MainView, {}, views)
+        ), document.getElementById('view'));
     });
 
 }

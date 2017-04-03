@@ -20,3 +20,28 @@ iframe {
     background-color: #333;
     position: absolute;
 }
+
+.layout-marker {
+    position: fixed;
+    background-color: cyan;
+    height: 1px;
+    width: 1px;
+    left: 0px;
+    top: 0px;
+    z-index: 1000;
+}
+.layout-marker:hover {
+    border: 3px solid #666;
+    margin-left: -3px;
+    margin-top: -3px;
+    z-index: 1001;
+}
+.layout-row-marker {
+    width: 100%;
+    cursor: ns-resize;
+}
+
+.layout-col-marker {
+    height: 100%;
+    cursor: ew-resize;
+}

@@ -35,5 +35,15 @@ const Util = {
             }
         }
         return defaults;
+    },
+    /**
+     * applies reducers sequentially, left to right
+     */
+    pipeReducers: (...reducers) => {
+        return (state, action) => {
+            return reducers.reduce((state, reducer) => {
+                return reducer(state, action);
+            }, state);
+        }
     }
 }

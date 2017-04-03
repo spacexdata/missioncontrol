@@ -10,12 +10,79 @@ pluginHost.register(
      * provide a factory for your plugin. It is eventually called with the "environment",
      * which contains dependencies you may use by destructuring the object. It contains:
      * - createElement (from React)
+     * - createClass (from React)
      * - connect (from Redux)
      * - Util
      * - pluginId: the pluginId you provided above
      */
-    ({pluginId, createElement, Util}) => {
-        console.log(pluginId);
+    ({pluginId, createElement, createClass, Util}) => {
+        //TODO: move as actioncreators to core
+        const adjustColumn = (index, pos) => ({
+            type: 'core/adjustColumn',
+            payload: {index, pos: pos+'px'}
+        });
+        const adjustRow = (index, pos) => ({
+            type: 'core/adjustRow',
+            payload: {index, pos: pos+'px'}
+        });
+
+        const Draggable = createClass({
+            handleDown(e) {
+                document.addEventListener('mousemove', this.handleDrag);
+                document.addEventListener('mouseup', this.handleUp);
+                e.preventDefault();
+            },
+            handleDrag(e) {
+                this.props.onDrag(e);
+                e.preventDefault();
+            },
+            handleUp(e) {
+                document.removeEventListener('mousemove', this.handleDrag);
+                document.removeEventListener('mouseup', this.handleUp);
+                e.preventDefault();
+            },
+            render() {
+                return createElement('div', Util.spread(this.props, {
+                    className: this.props.className,
+                    onMouseDown: this.handleDown.bind(this)
+                }));
+            }
+        });
+
+        const Col = Util.curry((dispatch, x, index) => {
+            return createElement(Draggable, {
+                className: 'layout-marker layout-col-marker',
+                style: {left: x},
+                onDrag: (e) => dispatch(adjustColumn(index, e.pageX))
+            });
+        });
+
+        const Row = Util.curry((dispatch, y, index) => {
+            return createElement(Draggable, {
+                className: 'layout-marker layout-row-marker',
+                style: {top: y},
+                onDrag: (e) => dispatch(adjustRow(index, e.pageY))
+            });
+        });
+
+        const Grid = ({layoutState, dispatch}) => {
+            let cols = layoutState.cols.map(Col(dispatch));
+            let rows = layoutState.rows.map(Row(dispatch));
+            return createElement('div', {className: 'layout-grid'}, [].concat(cols, rows));
+        }
+
+        const View = ({box, config, configState, layoutState, state, dispatch, globalDispatch}) => {
+            return createElement('div', {
+                onClick: () => dispatch({type: 'toggleConfig'})
+            }, ['configure view'].concat(
+                state.open? createElement(Grid, {
+                    layoutState,
+                    configState,
+                    dispatch: globalDispatch
+                }): []
+            ));
+        }
+
         return {
             name: 'configuration',
 
@@ -32,10 +99,10 @@ pluginHost.register(
              * optionally provide a reducer, which will be mounted as a slice of the main
              * reducer at the provided id
              */
-            reducer: (state = {foo:'bar'}, {type, payload}) => {
+            reducer: (state = {open: false}, {type, payload}) => {
                 switch(type) {
-                    case 'openConfig':
-                        return Util.spread(state, {open: true});
+                    case 'toggleConfig':
+                        return Util.spread(state, {open: !state.open});
                     default: return state;
                 }
             },
@@ -45,8 +112,18 @@ pluginHost.register(
              * you get your slice of the state
              */
             mapState: (state) => ({
-                state: state[pluginId],
-                configState: state.config
+                state: state[pluginId],     // own state
+                configState: state.config,  // application config state
+                layoutState: state.layout   // application layout state
+            }),
+
+            /**
+             * optionally provide a custom mapDispatchToProps function. By default,
+             * you get a dispatch that prefixes your action types with your plugin id
+             */
+            mapDispatch: (dispatch) => ({
+                dispatch: ({type, payload}) => dispatch({type: pluginId+type, payload}),
+                globalDispatch: dispatch
             }),
 
             /**
@@ -57,12 +134,7 @@ pluginHost.register(
              * - dispatch: the stores dispatch function
              * - state: your slice of the state
              */
-            view: ({box, config, configState, state, dispatch}) => {
-                console.log(state, config);
-                return createElement('div', {
-                    onClick: () => dispatch({type: 'openConfig'})
-                }, 'configure view');
-            }
+            view: View
         }
     }
 );
