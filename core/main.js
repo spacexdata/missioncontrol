@@ -32,15 +32,15 @@ const cellBox = (name, {cols, rows, cells}) => {
 }
 
 const defaultConfig = [{
-    url: '/plugins/youtube/youtube.js',
+    url: 'plugins/youtube/youtube.js',
     cell: 'hosted',
     pluginConfig: {'youtube id': 'xsZSXav4wI8'}
 },{
-    url: '/plugins/youtube/youtube.js',
+    url: 'plugins/youtube/youtube.js',
     cell: 'technical',
     pluginConfig: {'youtube id': 'xfNO571C7Ko'}
 },{
-    url: '/plugins/config/config.js',
+    url: 'plugins/config/config.js',
     cell: 'config',
     pluginConfig: {}
 }];

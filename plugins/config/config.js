@@ -98,7 +98,7 @@ pluginHost.register(
             /**
              * optionally provide a stylesheet to be included
              */
-            style: '/plugins/config/config.css',
+            style: 'plugins/config/config.css',
 
             /**
              * a custom mapper for state properties that the root components receives.
