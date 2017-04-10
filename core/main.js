@@ -6,28 +6,13 @@ const env = {
     Util: Util
 }
 
-const initialState = {
-    layout: {
-        cols: ['calc(100% - 300px)'],
-        rows: ['50%'],
-        cells: {
-            'hosted': [0,0,1,1],
-            'technical': [1,0,2,1],
-            'config': [1,1,2,2]
-        }
-    },
-    config: []
-};
-
-const cellBox = (name, {cols, rows, cells}) => {
-    let left = [].concat('0px', cols, '100%')[cells[name][0]];
-    let top = [].concat('0px', rows, '100%')[cells[name][1]];
-    let right = [].concat('0px', cols, '100%')[cells[name][2]];
-    let bottom = [].concat('0px', rows, '100%')[cells[name][3]];
-    return {
-        left, top,
-        width: `calc(${right} - ${left})`,
-        height: `calc(${bottom} - ${top})`
+const defaultLayout = {
+    cols: ['calc(100% - 300px)'],
+    rows: ['50%'],
+    cells: {
+        'hosted': [0,0,1,1],
+        'technical': [1,0,2,1],
+        'config': [1,1,2,2]
     }
 }
 
@@ -44,6 +29,23 @@ const defaultConfig = [{
     cell: 'config',
     pluginConfig: {}
 }];
+
+const initialState = {
+    layout: {},
+    config: []
+};
+
+const cellBox = (name, {cols, rows, cells}) => {
+    let left = [].concat('0px', cols, '100%')[cells[name][0]];
+    let top = [].concat('0px', rows, '100%')[cells[name][1]];
+    let right = [].concat('0px', cols, '100%')[cells[name][2]];
+    let bottom = [].concat('0px', rows, '100%')[cells[name][3]];
+    return {
+        left, top,
+        width: `calc(${right} - ${left})`,
+        height: `calc(${bottom} - ${top})`
+    }
+}
 
 const MainView = ({children, className}) => {
     return createElement('div', {className}, children);
@@ -102,6 +104,8 @@ const mainReducer = (state = initialState, action) => {
         case 'core/adjustRow':
         case 'core/adjustColumn':
             return Util.spread(state, {layout: layoutReducer(state.layout, action)});
+        case 'core/setLayout':
+            return Util.spread(state, {layout: action.payload});
         default:
             return state;
     }
@@ -113,8 +117,20 @@ const logger = store => next => action => {
     console.log(store.getState());
 }
 
+const watcher = config => store => next => action => {
+    let oldState = store.getState();
+    next(action);
+    let newState = store.getState();
+    Util.keys(config).forEach((key) => {
+        if (oldState[key] !== newState[key]) {
+            config[key](newState[key], oldState[key]);
+        }
+    });
+}
+
 function initialize() {
     let config = Util.loadFromStorage('config', defaultConfig);
+    let layout = Util.loadFromStorage('layout', defaultLayout);
     let loadSrc = cfg => Util.loadScript(cfg.url).then(() => cfg);
 
 
@@ -148,15 +164,17 @@ function initialize() {
         //create the store
         let store = Redux.createStore(
             Util.pipeReducers(mainReducer, pluginsReducer),
-            Redux.applyMiddleware(logger)
+            {layout, config},
+            Redux.applyMiddleware(
+                logger,
+                watcher({
+                    layout: (newState) => {
+                        Util.writeToStorage('layout', newState);
+                    }
+                })
+            )
         );
 
-        store.dispatch({
-            type: 'core/amendConfig',
-            payload: config
-        });
-
-        let layout = store.getState().layout;
         //create views
         let views = config.map((userConfig, index) => {
             let pluginSpec = specsIndex[userConfig.url];

@@ -47,6 +47,10 @@ const Util = {
         }
         return defaults;
     },
+    writeToStorage: (key, data) => {
+        let json = JSON.stringify(data);
+        window.localStorage[key] = json;
+    },
     /**
      * applies reducers sequentially, left to right
      */
