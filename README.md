@@ -14,6 +14,7 @@ There are a lot of efforts capturing, analysing and visualising SpaceX mission d
 - [/u/veebay](https://www.reddit.com/user/veebay]) created [flight analysis graphs](https://www.reddit.com/r/spacex/comments/6303ko/falcon_9_full_thrust_flight_analysis/)
 - [/u/danielbigham](https://www.reddit.com/user/danielbigham) gathered [recovery data](https://www.reddit.com/r/spacex/comments/4ihp1p/f9024_recovery_thread/d2zwz5x/)
 - [/u/ElongatedMuskrat](https://www.reddit.com/user/ElongatedMuskrat) provides (/r/spacex-) official [live updates](https://www.reddit.com/r/spacex/comments/62aqi7/rspacex_ses10_official_launch_discussion_updates/)
+- [/u/ap0r](https://www.reddit.com/user/ap0r) made a [F9 systems overview](https://www.reddit.com/r/spacex/comments/64ew8x/falcon_9_a_systems_overview/) and [/u/Jef-F](https://www.reddit.com/user/Jef-F) proposed to creata a animated / interactive [version of it](https://www.reddit.com/r/spacex/comments/64ew8x/falcon_9_a_systems_overview/dg1tjip/)
 
 (feel free to submit a PR to expand this list, I probably forgot quite some projects)
 
@@ -39,7 +40,7 @@ Anyone can create data. You can do that by any means you like, using any program
 To be able to use the data, we ask you to:
 
 - put timestamped data on a message bus. and / or
-- provide a json api
+- provide a json api (CORS enabled)
 
 Some examples
 
