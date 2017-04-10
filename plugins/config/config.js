@@ -96,6 +96,22 @@ pluginHost.register(
             },
 
             /**
+             * optionally provide a stylesheet to be included
+             */
+            style: '/plugins/config/config.css',
+
+            /**
+             * a custom mapper for state properties that the root components receives.
+             * use this for example to add global classes.
+             */
+            mapRootState: (state, props) => {
+                console.log(props.className, state[pluginId].open);
+                return Util.spread(props, {
+                    className: props.className + (state[pluginId].open?' config-open':'')
+                });
+            },
+
+            /**
              * optionally provide a reducer, which will be mounted as a slice of the main
              * reducer at the provided id
              */

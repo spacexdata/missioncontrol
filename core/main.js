@@ -32,20 +32,22 @@ const cellBox = (name, {cols, rows, cells}) => {
 }
 
 const defaultConfig = [{
-//     url: 'plugins/youtube.js',
-//     cell: 'hosted',
-//     pluginConfig: {'youtube id': 'xsZSXav4wI8'}
-// },{
-//     url: 'plugins/youtube.js',
-//     cell: 'technical',
-//     pluginConfig: {'youtube id': 'xfNO571C7Ko'}
-// },,{
-    url: 'plugins/config.js',
+    url: '/plugins/youtube/youtube.js',
+    cell: 'hosted',
+    pluginConfig: {'youtube id': 'xsZSXav4wI8'}
+},{
+    url: '/plugins/youtube/youtube.js',
+    cell: 'technical',
+    pluginConfig: {'youtube id': 'xfNO571C7Ko'}
+},{
+    url: '/plugins/config/config.js',
     cell: 'config',
     pluginConfig: {}
 }];
 
-const MainView = ({children}) => createElement('div', {className: 'layout-canvas'}, children);
+const MainView = ({children, className}) => {
+    return createElement('div', {className}, children);
+}
 
 /**
  * wraps dispatch to dispatch actions under a namespace the plugin id namespace
@@ -119,14 +121,14 @@ function initialize() {
     //load the plugins
     Promise.all(Util.fmap(loadSrc, config)).then((res) => {
         console.log('loaded', res);
-        let specs = pluginHost.initAll(env);
-        console.log(specs);
+        let specsIndex = pluginHost.initAll(env);
+        console.log(specsIndex);
+        let specs = Object.keys(specsIndex).map(url => specsIndex[url]);
 
         // let namespacedReducer = (pluginId, reducer) => ()
 
         let pluginsReducer = (state, action) => {
-            return Util.keys(specs).reduce((state, url) => {
-                let spec = specs[url];
+            return specs.reduce((state, spec) => {
                 if (spec.reducer) {
                     return Util.spread(state, {
                         [spec.pluginId]: spec.reducer(state[spec.pluginId], {
@@ -154,16 +156,31 @@ function initialize() {
         let layout = store.getState().layout;
         //create views
         let views = config.map((userConfig, index) => {
-            let pluginSpec = specs[userConfig.url];
+            let pluginSpec = specsIndex[userConfig.url];
             console.log(userConfig, pluginSpec);
             return createElement(Cell, {layout, userConfig, pluginSpec, key: index});
         });
+
+        //create root props
+        let mapStateToMainProps = specs
+            .filter(spec => spec.mapRootState)
+            .reduce((mapper, spec) => {
+                return (state, props) => {
+                    let newProps = mapper(state, props);
+                    let pluginProps = spec.mapRootState(state, newProps);
+                    return Util.spread(newProps, pluginProps);
+                }
+        }, (state, props) => props);
+
+        let View = env.connect(mapStateToMainProps)(MainView);
 
         //init main view
         ReactDOM.render(createElement(
             ReactRedux.Provider,
             { store },
-            createElement(MainView, {}, views)
+            createElement(View, {
+                className: 'layout-canvas'
+            }, views)
         ), document.getElementById('view'));
     });
 
