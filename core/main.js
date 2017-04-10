@@ -7,12 +7,13 @@ const env = {
 }
 
 const defaultLayout = {
-    cols: ['calc(100% - 300px)'],
-    rows: ['50%'],
+    cols: ['300px','calc(100% - 300px)'],
+    rows: ['40px','50%'],
     cells: {
-        'hosted': [0,0,1,1],
-        'technical': [1,0,2,1],
-        'config': [1,1,2,2]
+        'title': [1,0,2,1],
+        'hosted': [0,1,1,2],
+        'technical': [1,1,2,2],
+        'config': [2,0,3,1]
     }
 }
 
@@ -28,6 +29,12 @@ const defaultConfig = [{
     url: 'plugins/config/config.js',
     cell: 'config',
     pluginConfig: {}
+},{
+    url: 'plugins/html/html.js',
+    cell: 'title',
+    pluginConfig: {
+        html: '<h1>Mission Control</h1>'
+    }
 }];
 
 const initialState = {
