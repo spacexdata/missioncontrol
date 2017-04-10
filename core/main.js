@@ -115,7 +115,7 @@ const logger = store => next => action => {
 
 function initialize() {
     let config = Util.loadFromStorage('config', defaultConfig);
-    let loadSrc = cfg => Util.load(cfg.url).then(() => cfg);
+    let loadSrc = cfg => Util.loadScript(cfg.url).then(() => cfg);
 
 
     //load the plugins
@@ -124,6 +124,9 @@ function initialize() {
         let specsIndex = pluginHost.initAll(env);
         console.log(specsIndex);
         let specs = Object.keys(specsIndex).map(url => specsIndex[url]);
+
+        //load css
+        specs.filter(spec => spec.style).map(spec => spec.style).forEach(Util.loadCss);
 
         // let namespacedReducer = (pluginId, reducer) => ()
 

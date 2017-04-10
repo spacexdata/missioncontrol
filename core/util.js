@@ -4,6 +4,8 @@ const Util = {
     compose: (...fns) => fns.reduce((f, g) => (...args) => f(g(...args))),
     curry: (fn) => (...args) => fn.bind(null, ...args),
 
+
+
     //other helpers
     keys: (obj) => Object.keys(obj),
     mapObject: (fn, obj) => {
@@ -13,7 +15,7 @@ const Util = {
         }, {})
     },
     spread: (...args) => Object.assign({}, ...args),
-    load: (src) => {
+    loadScript: (src) => {
         return new Promise((resolve, reject) => {
             let el = document.createElement('script');
             el.src = src;
@@ -23,6 +25,15 @@ const Util = {
             let h = document.getElementsByTagName('head')[0];
             h.insertBefore(el,h.firstChild);
         });
+    },
+    loadCss: (src) => {
+        let el = document.createElement('link');
+        el.href = src;
+        el.rel = 'stylesheet';
+        let h = document.getElementsByTagName('head')[0];
+        h.insertBefore(el,h.firstChild);
+        //return a promise for consistency
+        return Promise.resolve();
     },
     loadFromStorage: (key, defaults) => {
         let json = window.localStorage[key];
