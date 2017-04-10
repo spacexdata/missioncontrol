@@ -28,7 +28,7 @@ iframe {
     width: 1px;
     left: 0px;
     top: 0px;
-    z-index: 1000;
+    z-index: 2000;
 }
 .layout-marker:hover {
     border: 3px solid #666;
@@ -44,6 +44,17 @@ iframe {
 .layout-col-marker {
     height: 100%;
     cursor: ew-resize;
+}
+
+.layout-popup {
+    position: fixed;
+    left: 50px;
+    top: 30px;
+    right: 50px;
+    bottom: 50px;
+    background-color: #111;
+    box-shadow: 3px 3px 3px black;
+    z-index: 1000;
 }
 
 h1, h2, h3, h4, h5, h6 {

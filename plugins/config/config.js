@@ -71,15 +71,55 @@ pluginHost.register(
             return createElement('div', {className: 'layout-grid'}, [].concat(cols, rows));
         }
 
+        const DividerConfig = ({pos, dispatch}) => {
+            return createElement('div', {}, [
+                createElement('input', {
+                    value: pos
+                }),
+                'remove'
+            ]);
+        }
+
+        const createDividerConfig = (props) => (pos) => {
+            return createElement(DividerConfig, Util.spread(props, {pos}));
+        }
+
+        const GridConfig = ({layoutState, dispatch}) => {
+            return createElement('div', {className: 'layout-popup'}, [
+                createElement('h2', {}, 'Columns'),
+                'add col',
+                layoutState.cols.map(createDividerConfig({layoutState, dispatch})),
+                createElement('h2', {}, 'Rows'),
+                'add row',
+                layoutState.rows.map(createDividerConfig({layoutState, dispatch})),
+                createElement('button', {
+                    onClick: () => dispatch({type: 'toggleConfig'})
+                }, 'Close')
+            ]);
+        }
+
         const View = ({box, config, configState, layoutState, state, dispatch, globalDispatch}) => {
-            return createElement('div', {
-                onClick: () => dispatch({type: 'toggleConfig'})
-            }, ['configure view'].concat(
-                state.open? createElement(Grid, {
-                    layoutState,
-                    configState,
-                    dispatch: globalDispatch
-                }): []
+            return createElement('div', {}, [
+                createElement('i', {
+                    className: 'material-icons',
+                    onClick: () => dispatch({type: 'toggleConfig'})
+                }, 'settings'),
+                createElement('i', {
+                    className: 'material-icons',
+                    onClick: () => dispatch({type: 'toggleGrid'})
+                }, 'grid_on'),
+            ].concat(
+                state.configOpen?
+                    createElement(GridConfig, {
+                        layoutState,
+                        dispatch: globalDispatch
+                    }) : [],
+                state.gridOpen?
+                    createElement(Grid, {
+                        layoutState,
+                        configState,
+                        dispatch: globalDispatch
+                    }) : []
             ));
         }
 
@@ -105,9 +145,8 @@ pluginHost.register(
              * use this for example to add global classes.
              */
             mapRootState: (state, props) => {
-                console.log(props.className, state[pluginId].open);
                 return Util.spread(props, {
-                    className: props.className + (state[pluginId].open?' config-open':'')
+                    className: props.className + (state[pluginId].configOpen?' config-open':'')
                 });
             },
 
@@ -115,10 +154,12 @@ pluginHost.register(
              * optionally provide a reducer, which will be mounted as a slice of the main
              * reducer at the provided id
              */
-            reducer: (state = {open: false}, {type, payload}) => {
+            reducer: (state = {gridOpen: false, configOpen: false}, {type, payload}) => {
                 switch(type) {
                     case 'toggleConfig':
-                        return Util.spread(state, {open: !state.open});
+                        return Util.spread(state, {configOpen: !state.configOpen});
+                    case 'toggleGrid':
+                        return Util.spread(state, {gridOpen: !state.gridOpen});
                     default: return state;
                 }
             },
