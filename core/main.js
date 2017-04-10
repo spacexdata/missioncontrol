@@ -111,23 +111,6 @@ const mainReducer = (state = initialState, action) => {
     }
 }
 
-const logger = store => next => action => {
-    console.log(action);
-    next(action);
-    console.log(store.getState());
-}
-
-const watcher = config => store => next => action => {
-    let oldState = store.getState();
-    next(action);
-    let newState = store.getState();
-    Util.keys(config).forEach((key) => {
-        if (oldState[key] !== newState[key]) {
-            config[key](newState[key], oldState[key]);
-        }
-    });
-}
-
 function initialize() {
     let config = Util.loadFromStorage('config', defaultConfig);
     let layout = Util.loadFromStorage('layout', defaultLayout);
@@ -166,8 +149,8 @@ function initialize() {
             Util.pipeReducers(mainReducer, pluginsReducer),
             {layout, config},
             Redux.applyMiddleware(
-                logger,
-                watcher({
+                middleware.logger,
+                middleware.watcher({
                     layout: (newState) => {
                         Util.writeToStorage('layout', newState);
                     }
