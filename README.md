@@ -110,14 +110,34 @@ I propose to create a React Redux application. This is well-know technology and 
 
 So, if you would like to create a piece of interface, create a js file (hosted anywhere) that eventually calls a pluginHost with unique id and a factory function. That factory is called with a bunch of useful stuff as an environment. You can pick out any depencencies you need. The factory should return an object describing your plugin
 
-	window.pluginHost.register('www.example.com/fancydata/graph', function({connect, dispatch, createElement, ...otherDependencies}) {
-		return {
-			reducer: (state, action) => state,
-			view: createElement('div', [], 'my plugin')
+	window.pluginHost.register(
+		'www.example.com/fancydata/graph',
+		function({connect, dispatch, createElement, ...otherDependencies}) {
+			return {
+				name: 'fancydatagraph',
+				reducer: (state, action) => state,
+				view: createElement('div', [], 'my plugin')
+			}
 		}
-	});
+	);
 
 This plugin architecture is inspired by the [hyper.is extension api](https://hyper.is/#extensions-api). The idea is that you provide methods that hook into the applications.
+
+These are the fields that your factory can provide:
+
+- `name`: interface name for your plugin
+- `config object optional`: a configuration object for your plugin. These are presented as configurable fields to the user. Keys will be used as labels, values as default valies. If you do not wish to provide default values (discouraged), provide null.
+- `style string optional`: an optional link to a stylesheet file, which gets added to the page. Please namespace your classes.
+- `mapRootState (state, props) => object optional`: additional props to provide to the root element. This may be used to pass in classes that act on your slice of the state.
+- `reducer (state, action) => state optional`: a redux reducer. It is mounted as a slice of the main reducer at the provided id. Action types are received un-prefixed
+- `mapState (state, props) => object optional`: optionally map the entire dashboard state (not just your slice) to props. By default, you receive just your own state as a `state` prop, but here you can override that behaviour. To access your own state slice, use `state[pluginId]`.
+- `mapDispatch (dispatch, props) => object optional`: optionally provide your own dispatch mapper. By default, you receive a special version of `dispatch` as a prop that prefixes every action with your plugin id. This is normally invisible as the reducer un-prefixes it for you. This is done to prevent collisions. If you provide your own `mapDispatch`, it is called with a not-so-special global dispatch function.
+- `view (props) => vnode optional`: a view for your component. It receives the following props:
+	- `width`: the width of the cell in pixels, determined by the user
+	- `height`: the height of the cell in pixels, determined by the user
+	- `config`: the user configuration, which has the same shape and defaults as your provided `config` object
+	- `dispatch`: a special dispatch function that prefixes your actions, unless you have overriden `mapDispatch`
+	- `state`: your slice of the app state, unless you have overridden `mapState`
 
 This section needs to be specced out a bit further, but the ideas are
 
@@ -125,8 +145,9 @@ This section needs to be specced out a bit further, but the ideas are
 - providing a custom redux reducer that is added to the main root reducer (in a namespaced way)
 - providing middleware
 - providing the view
+- providing styles
 
-Not that plugins can use any data from the store, 
+Note that plugins can use any data from the store, 
 
 ### Customization
 
