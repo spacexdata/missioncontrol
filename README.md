@@ -9,9 +9,9 @@ There are a lot of efforts capturing, analysing and visualising SpaceX mission d
 - [/u/TheVehicleDestroyer](https://www.reddit.com/user/TheVehicleDestroyer) created flightclub
 - live telemetry capturing
 - There are [weather forecasts](http://www.patrick.af.mil/Portals/14/documents/Weather/L-2%20Forecast%2030%20Mar%20Launch.pdf?ver=2017-03-28-083516-783)
-- [/u/Raul74Cz]() creates [landing maps](https://www.google.com/maps/d/viewer?mid=1GwvMWuWyokeVZJWqy9nNMH_Pug4&ll=28.238947115344324%2C-78.13403097814569&z=6)
+- [/u/Raul74Cz](https://www.reddit.com/user/Raul74Cz) creates [landing maps](https://www.google.com/maps/d/viewer?mid=1GwvMWuWyokeVZJWqy9nNMH_Pug4&ll=28.238947115344324%2C-78.13403097814569&z=6)
 - [Spaceflight Now](https://spaceflightnow.com) has [live coverage streams](https://spaceflightnow.com/2017/03/24/ses-10-flight-preps/)
-- [/u/veebay](https://www.reddit.com/user/veebay]) created [flight analysis graphs](https://www.reddit.com/r/spacex/comments/6303ko/falcon_9_full_thrust_flight_analysis/)
+- [/u/veebay](https://www.reddit.com/user/veebay) created [flight analysis graphs](https://www.reddit.com/r/spacex/comments/6303ko/falcon_9_full_thrust_flight_analysis/)
 - [/u/danielbigham](https://www.reddit.com/user/danielbigham) gathered [recovery data](https://www.reddit.com/r/spacex/comments/4ihp1p/f9024_recovery_thread/d2zwz5x/)
 - [/u/ElongatedMuskrat](https://www.reddit.com/user/ElongatedMuskrat) provides (/r/spacex-) official [live updates](https://www.reddit.com/r/spacex/comments/62aqi7/rspacex_ses10_official_launch_discussion_updates/)
 - [/u/ap0r](https://www.reddit.com/user/ap0r) made a [F9 systems overview](https://www.reddit.com/r/spacex/comments/64ew8x/falcon_9_a_systems_overview/) and [/u/Jef-F](https://www.reddit.com/user/Jef-F) proposed to creata a animated / interactive [version of it](https://www.reddit.com/r/spacex/comments/64ew8x/falcon_9_a_systems_overview/dg1tjip/)
